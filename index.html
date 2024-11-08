@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>比賽報名費用計算</title>
+    <title>2025 鐵蟲二人組系列賽</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -30,14 +30,37 @@
         .race-option:hover {
             background-color: #f0f0f0;
         }
+        .race-option.selected {
+            background-color: #e3f2fd;
+        }
         h2 {
             color: #2c3e50;
             margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cancel-btn {
+            background-color: #ff5252;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            display: none;
+        }
+        .cancel-btn.visible {
+            display: inline-block;
+        }
+        .cancel-btn:hover {
+            background-color: #ff1744;
         }
         .price {
             margin-left: auto;
             color: #e74c3c;
             font-weight: bold;
+            padding-right: 10px;
         }
         .distance {
             color: #7f8c8d;
@@ -70,10 +93,13 @@
     </style>
 </head>
 <body>
-    <h1>比賽報名費用計算</h1>
+    <h1>2025 鐵蟲二人組系列賽</h1>
     
     <div class="race-category">
-        <h2>大肚山越野</h2>
+        <h2>
+            大肚山越野
+            <button class="cancel-btn" data-category="dasy">取消選擇</button>
+        </h2>
         <div class="race-option">
             <input type="radio" name="dasy" id="dasy_1" value="1480">
             <label for="dasy_1">進階越野‧競速</label>
@@ -101,7 +127,10 @@
     </div>
 
     <div class="race-category">
-        <h2>越野‧發發廟衛</h2>
+        <h2>
+            越野‧發發廟衛
+            <button class="cancel-btn" data-category="temple">取消選擇</button>
+        </h2>
         <div class="race-option">
             <input type="radio" name="temple" id="temple_1" value="4500">
             <label for="temple_1">發發廟衛 70K</label>
@@ -135,7 +164,10 @@
     </div>
 
     <div class="race-category">
-        <h2>火炎山甜甜圈</h2>
+        <h2>
+            火炎山甜甜圈
+            <button class="cancel-btn" data-category="fire">取消選擇</button>
+        </h2>
         <div class="race-option">
             <input type="radio" name="fire" id="fire_1" value="1800">
             <label for="fire_1">無限循環賽</label>
@@ -175,7 +207,34 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const radioButtons = document.querySelectorAll('input[type="radio"]');
+            const cancelButtons = document.querySelectorAll('.cancel-btn');
             
+            function updateCancelButtons() {
+                const categories = ['dasy', 'temple', 'fire'];
+                categories.forEach(category => {
+                    const selected = document.querySelector(`input[name="${category}"]:checked`);
+                    const cancelBtn = document.querySelector(`button[data-category="${category}"]`);
+                    const raceOptions = document.querySelectorAll(`input[name="${category}"]`);
+                    
+                    // 更新取消按鈕顯示
+                    if (selected) {
+                        cancelBtn.classList.add('visible');
+                    } else {
+                        cancelBtn.classList.remove('visible');
+                    }
+                    
+                    // 更新選項的視覺效果
+                    raceOptions.forEach(option => {
+                        const parentDiv = option.closest('.race-option');
+                        if (option.checked) {
+                            parentDiv.classList.add('selected');
+                        } else {
+                            parentDiv.classList.remove('selected');
+                        }
+                    });
+                });
+            }
+
             function calculateTotal() {
                 let total = 0;
                 let selectedCount = 0;
@@ -205,11 +264,26 @@
                     ((1 - discountRate) * 100).toFixed(0) + '%';
                 document.getElementById('final-price').textContent = 
                     Math.round(total * discountRate) + '元';
+                
+                // 更新取消按鈕狀態
+                updateCancelButtons();
             }
             
-            // 添加事件監聽器
+            // 添加單選按鈕事件監聽器
             radioButtons.forEach(button => {
                 button.addEventListener('change', calculateTotal);
+            });
+            
+            // 添加取消按鈕事件監聽器
+            cancelButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    const radioButtons = document.querySelectorAll(`input[name="${category}"]`);
+                    radioButtons.forEach(radio => {
+                        radio.checked = false;
+                    });
+                    calculateTotal();
+                });
             });
         });
     </script>
